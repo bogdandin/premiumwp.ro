@@ -2,6 +2,7 @@
 
 
 
+
 function prelucrare($tip, $rand, $data) {
 
 	
@@ -37,6 +38,8 @@ add_action( 'template_redirect', 'returndata' );
 function returndata($data) {
 
 
+
+
  $productAttributes=array();
 
         for ($i = 1; $i <= 10; $i++){
@@ -44,7 +47,7 @@ function returndata($data) {
 		
 		$name = prelucrare('name',$i, $data);
 		$valoare = prelucrare('value',$i, $data);
-			$slug = 'pa_' . wc_sanitize_taxonomy_name(stripslashes($name));
+			$slug = 'pa_' . sanitize_title($name);
 		
 		if(!empty($name) &&  !empty($valoare)) {
 							
@@ -52,10 +55,10 @@ function returndata($data) {
 			global $wpdb;
 
 			// Numele atributului
-$attribute_name = $name;
+$attribute_name = prelucrare('name',$i, $data);
 
 // Valoarea atributului
-$attribute_value = $valoare;
+$attribute_value = prelucrare('value',$i, $data);
 
 // Verifică dacă atributul există deja în baza de date
 $existing_attribute = wc_attribute_taxonomy_id_by_name($attribute_name);
@@ -74,26 +77,21 @@ if (!$existing_attribute) {
 }
 
 // Actualizează valorile atributului
-$term = term_exists($attribute_value, 'pa_' . $attribute_name);
+$term = term_exists($attribute_value, 'pa_' . sanitize_title($attribute_name));
 if (!$term) {
-    $term = wp_insert_term($attribute_value, 'pa_' . $attribute_name);
+    $term = wp_insert_term($attribute_value, 'pa_' . sanitize_title($attribute_name));
 }
-
-// Adaugă termenul atributului la produsul dorit
-$product_id = 215; // ID-ul produsului
-//wp_set_object_terms($product_id, $term['term_id'], 'pa_' . $attribute_name, true);
-			 
 				
 				
-
-				$productAttributes[$slug] = array(
-							'name' => $name,
-							'value' => $valoare,
-							'position' => 1,
+$productAttributes[$slug] = array(
+							'name' => 'pa_' . sanitize_title($attribute_name),
+							'value' => '',
+							'position' => 0,
 							'is_visible' => 1,
 							'is_variation' => 1,
 							'is_taxonomy' => '1'
 						);
+				
 					
 
 
@@ -101,12 +99,13 @@ $product_id = 215; // ID-ul produsului
 		
 			
     } // end for
-          // print_r($productAttributes);
- echo serialize($productAttributes);
-
+          echo serialize($productAttributes);
+ 
+die();
 } // end f return data
 
 
+// [prelucrare("name","1",{Content[1]})] si [prelucrare("value","1",{Content[1]})] @ atribute wp all import
 
-
+//_product_attributes [returndata({Content[1]})]
 ?>
